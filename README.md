@@ -1,134 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subhadip Pal - Professional Portfolio</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 1rem 0;
-            text-align: center;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background-color: #444;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            padding: 10px;
-            transition: background 0.3s;
-        }
-        nav a:hover {
-            background-color: #555;
-        }
-        section {
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-        }
-        .skills, .experience, .education {
-            margin-bottom: 20px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+from kivy.uix.label import Label
+from kivy.uix.dropdown import DropDown
+from kivy.uix.spinner import Spinner
+from datetime import datetime
 
-<header>
-    <h1>Subhadip Pal</h1>
-    <p>Welcome to my professional portfolio</p>
-</header>
+# Mood tracking app
+class MoodSyncApp(App):
+    def build(self):
+        self.mood_data = []
+        self.coping_strategies = {
+            "Happy": "Keep up the great mood! Engage in your favorite activities.",
+            "Sad": "Try to talk to a friend or practice deep breathing.",
+            "Angry": "Take a short walk or practice mindfulness.",
+            "Stressed": "Try meditation or write about your stress."
+        }
+        
+        # Main layout of the app
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        # Label to display app title
+        title_label = Label(text="MoodSync - Mood Tracker", font_size=24, size_hint=(1, 0.1))
+        layout.add_widget(title_label)
 
-<nav>
-    <a href="#about">About</a>
-    <a href="#experience">Experience</a>
-    <a href="#skills">Skills</a>
-    <a href="#education">Education</a>
-    <a href="#contact">Contact</a>
-</nav>
+        # Spinner (dropdown) for selecting the mood
+        self.mood_spinner = Spinner(
+            text="Select your mood",
+            values=("Happy", "Sad", "Angry", "Stressed"),
+            size_hint=(None, None),
+            size=(200, 44),
+        )
+        layout.add_widget(self.mood_spinner)
+        
+        # Text input for additional notes
+        self.note_input = TextInput(
+            hint_text="Additional notes (optional)",
+            size_hint=(1, 0.2),
+            multiline=True
+        )
+        layout.add_widget(self.note_input)
+        
+        # Submit button to log mood and add to history
+        submit_button = Button(text="Log Mood", size_hint=(1, 0.1), on_press=self.log_mood)
+        layout.add_widget(submit_button)
+        
+        # Label to display coping strategy based on mood
+        self.coping_label = Label(text="Coping Strategy will appear here", size_hint=(1, 0.1))
+        layout.add_widget(self.coping_label)
 
-<section id="about">
-    <div class="container">
-        <h2>About Me</h2>
-        <p>
-            Hello! I'm Subhadip Pal, a professional with a passion for [Your Key Expertise/Industry]. I bring a combination of technical expertise and a strong commitment to excellence, aiming to deliver impactful results in all my endeavors.
-        </p>
-    </div>
-</section>
+        # Display logged moods
+        self.history_label = Label(text="Mood History: None", size_hint=(1, 0.2))
+        layout.add_widget(self.history_label)
+        
+        return layout
 
-<section id="experience">
-    <div class="container">
-        <h2>Experience</h2>
-        <div class="experience">
-            <h3>Job Title at Company Name</h3>
-            <p><em>Dates (e.g., Jan 2020 - Present)</em></p>
-            <ul>
-                <li>Responsibility or achievement 1</li>
-                <li>Responsibility or achievement 2</li>
-                <li>Responsibility or achievement 3</li>
-            </ul>
-        </div>
-        <div class="experience">
-            <h3>Previous Job Title at Previous Company</h3>
-            <p><em>Dates</em></p>
-            <ul>
-                <li>Responsibility or achievement 1</li>
-                <li>Responsibility or achievement 2</li>
-            </ul>
-        </div>
-    </div>
-</section>
+    def log_mood(self, instance):
+        mood = self.mood_spinner.text
+        notes = self.note_input.text
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Log the mood entry
+        self.mood_data.append({'mood': mood, 'timestamp': timestamp, 'notes': notes})
+        
+        # Display the coping strategy
+        self.coping_label.text = f"Coping Strategy: {self.coping_strategies.get(mood, 'No strategy available')}"
+        
+        # Update mood history
+        history = "\n".join([f"{entry['timestamp']}: {entry['mood']} - {entry['notes']}" for entry in self.mood_data])
+        self.history_label.text = f"Mood History:\n{history}"
 
-<section id="skills">
-    <div class="container">
-        <h2>Skills</h2>
-        <ul>
-            <li>Skill 1</li>
-            <li>Skill 2</li>
-            <li>Skill 3</li>
-            <li>Skill 4</li>
-        </ul>
-    </div>
-</section>
+        # Clear the note input field
+        self.note_input.text = ""
 
-<section id="education">
-    <div class="container">
-        <h2>Education</h2>
-        <p><strong>Degree</strong> in <em>Field</em> - University Name (Year)</p>
-        <p><strong>Certification or Course Name</strong> - Institution (Year)</p>
-    </div>
-</section>
-
-<section id="contact">
-    <div class="container">
-        <h2>Contact</h2>
-        <p>Email: <a href="mailto:yourname@example.com">yourname@example.com</a></p>
-        <p>LinkedIn: <a href="https://www.linkedin.com/in/subhadip-pal-1881b1315" target="_blank">linkedin.com/in/subhadip-pal-1881b1315</a></p>
-    </div>
-</section>
-
-<footer>
-    <p>&copy; 2025 Subhadip Pal. All Rights Reserved.</p>
-</footer>
-
-</body>
-</html>
+if __name__ == '__main__':
+    MoodSyncApp().run()
